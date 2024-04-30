@@ -1,15 +1,24 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { WrapResponseInterceptor } from './common/interceptors/wrap-response.interceptor';
+import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
+
+  app.useGlobalInterceptors(new WrapResponseInterceptor());
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Iluvcoffee')
+    .setDescription('Coffee application')
+    .setVersion('1.0')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api', app, document);
+
   await app.listen(3000);
 }
 bootstrap();
@@ -37,6 +46,8 @@ bootstrap();
 /* 
     Binding techniques: 
 
+
+
     We can bind one of things described above in three ways:
 
       - Globally
@@ -44,7 +55,3 @@ bootstrap();
       - In method
     ! - In param (* Pipes only)
 */
-
-//TODO: Typeorm:migration schema
-//TODO: Look at @Module decorator definition
-//TODO: Module provider

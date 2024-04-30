@@ -1,10 +1,10 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CoffeesService } from './coffees.service';
 import { CoffeesController } from './coffees.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Coffee } from './entity/coffee.entity';
+import { Coffee, CoffeeSchema, MCoffee } from './entity/coffee.entity';
 import { Flavor } from './entity/flavor.entity';
 import { Event } from '../events/entity/event.entity';
 import { COFFEE_BRANDS_MARK, FAMOUS_COFFEE_BRANDS } from './coffees.constants';
@@ -14,10 +14,10 @@ import {
   ProdImplAbstractClass,
 } from './coffees.abstract';
 import { ConfigProvider, testProvider } from './coffees.factory';
-import { CoffeeMiddleware } from './coffee.middleware';
 import { AService } from './a.circular';
 import { BService } from './b.circular';
 import coffeesConfig from './config/coffees.config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 const isDev = false;
 
@@ -26,6 +26,7 @@ const isDev = false;
 @Module({
   imports: [
     TypeOrmModule.forFeature([Coffee, Flavor, Event]),
+    MongooseModule.forFeature([{ name: MCoffee.name, schema: CoffeeSchema }]),
     ConfigModule.forFeature(coffeesConfig),
   ],
   providers: [
@@ -71,8 +72,4 @@ const isDev = false;
   ],
   controllers: [CoffeesController],
 })
-export class CoffeesModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CoffeeMiddleware).forRoutes('coffees');
-  }
-}
+export class CoffeesModule {}

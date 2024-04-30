@@ -1,4 +1,5 @@
-import { IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 /* 
     DTO (Data Transfer Object)
@@ -16,7 +17,7 @@ import { IsString } from "class-validator";
     *Properties:
 
     * - (Transfer data between layers)
-    Позволяет лелгко и удобно переводить данные из одного слоя,
+    Позволяет легко и удобно переводить данные из одного слоя,
     в другой.
 
     ! - (Validation) For NestJS with Validation Pipe
@@ -30,12 +31,15 @@ import { IsString } from "class-validator";
 //* Mark all fields as readonly
 
 export class CreateCoffeeDTO {
+  @ApiProperty({ description: 'The name of a coffee' })
   @IsString()
   readonly name: string;
 
+  @ApiProperty({ description: 'The brand of a coffee' })
   @IsString()
   readonly brand: string;
 
+  @ApiProperty({ description: 'Flavors of a coffee', example: [] })
   @IsString({ each: true })
   readonly flavors: string[];
 }

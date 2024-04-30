@@ -6,12 +6,24 @@ import {
   Param,
   Patch,
   Post,
-  Query
-} from "@nestjs/common";
-import { CoffeesService } from "./coffees.service";
-import { CreateCoffeeDTO } from "./dto/create-coffee.dto";
-import { UpdateCoffeeDTO } from "./dto/update-coffee.dto";
-import { PaginationQueryDTO } from "../common/dtos/pagination-query.dto";
+  Query,
+  SetMetadata,
+  UseGuards,
+  UseInterceptors,
+  UsePipes,
+} from '@nestjs/common';
+import { CoffeesService } from './coffees.service';
+import { CreateCoffeeDTO } from './dto/create-coffee.dto';
+import { UpdateCoffeeDTO } from './dto/update-coffee.dto';
+import { PaginationQueryDTO } from '../common/dtos/pagination-query.dto';
+import { CustomPipe } from '../common/pipes/custom.pipe';
+import { Roles } from '../common/decorators/roles.decorator';
+import { RoleGuard } from '../common/guards/role.guard';
+import { CustomInterceptor } from '../common/interceptors/custom.interceptor';
+import { GetUser } from '../common/decorators/param.decorator';
+import { Public } from '../common/decorators/public.decorator';
+import { Protocol } from '../common/decorators/protocol.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 //* Link: https://docs.nestjs.com/controllers
 
@@ -21,18 +33,28 @@ import { PaginationQueryDTO } from "../common/dtos/pagination-query.dto";
     But if method returns a promise, good practice is 
     mark it as async.
 */
-
-@Controller("coffees")
+@ApiTags('coffees')
+@Controller('coffees')
+@UseInterceptors(CustomInterceptor)
+@UsePipes(CustomPipe)
 export class CoffeesController {
   constructor(private readonly coffeeService: CoffeesService) {}
 
   @Get()
-  findAll(@Query() pagination: PaginationQueryDTO) {
+  @Public()
+  @Roles('user')
+  @UseGuards(RoleGuard)
+  findAll(
+    @Query() pagination: PaginationQueryDTO,
+    @Protocol() protocol: unknown,
+  ) {
     return this.coffeeService.findAll(pagination);
   }
 
-  @Get(":id")
-  findOne(@Param("id") id: number) {
+  @Get(':id')
+  @UsePipes(CustomPipe)
+  @Public()
+  findOne(@Param('id') id: number, @GetUser() user: any) {
     return this.coffeeService.findOne(id);
   }
 
@@ -41,13 +63,13 @@ export class CoffeesController {
     return this.coffeeService.create(createCoffeeDTO);
   }
 
-  @Patch(":id")
-  update(@Param("id") id: number, @Body() updateCoffeeDTO: UpdateCoffeeDTO) {
+  @Patch(':id')
+  update(@Param('id') id: number, @Body() updateCoffeeDTO: UpdateCoffeeDTO) {
     return this.coffeeService.update(id, updateCoffeeDTO);
   }
 
-  @Delete(":id")
-  delete(@Param("id") id: number) {
+  @Delete(':id')
+  delete(@Param('id') id: number) {
     return this.coffeeService.delete(id);
   }
 }

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { DataSource, Repository } from 'typeorm';
 
-import { Coffee } from './entity/coffee.entity';
+import { Coffee, MCoffee } from './entity/coffee.entity';
 import { Flavor } from './entity/flavor.entity';
 import { CreateCoffeeDTO } from './dto/create-coffee.dto';
 import { UpdateCoffeeDTO } from './dto/update-coffee.dto';
@@ -14,6 +14,8 @@ import { COFFEE_BRANDS_MARK } from './coffees.constants';
 import { AbstractClass } from './coffees.abstract';
 import { TestFactoryClass } from './coffees.factory';
 import coffeesConfig from './config/coffees.config';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 //* Link: https://docs.nestjs.com/providers
 
@@ -27,6 +29,8 @@ export class CoffeesService {
     @InjectRepository(Flavor)
     private readonly flavorRepository: Repository<Flavor>,
     private readonly dataSource: DataSource,
+    @InjectModel(MCoffee.name)
+    private readonly mongoCoffeeRepository: Model<MCoffee>,
     @Inject(COFFEE_BRANDS_MARK) private readonly famousBrands: string[],
     private readonly abstractClass: AbstractClass,
     @Inject('test_provider') private readonly testProvider: TestFactoryClass,

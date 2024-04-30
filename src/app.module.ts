@@ -1,8 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
+import { APP_PIPE, APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CoffeesModule } from './coffees/coffees.module';
+
+import { CommonModule } from './common/common.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 /* 
   * Config validation
@@ -39,7 +43,40 @@ import { CoffeesModule } from './coffees/coffees.module';
         };
       },
     }),
+    MongooseModule.forRoot('mongodb://localhost:27017/nest-course'),
+    CommonModule,
     CoffeesModule,
+  ],
+  /* 
+    * Register global: 
+        - Pipes
+        - Filters
+        - Guards
+        - Interceptors  
+
+     We can register anything above globally in another manner.
+     Instead app <-- NestFactory.create(rootModule).useGlobal[Someone](...);
+     
+     We can provide it in root module.
+
+     Nest provide tokens for it: 
+      - APP_FILTER 
+      - APP_GUARD
+      - APP_PIPE
+      - APP_INTERCEPTOR
+
+     Here's example:
+  */
+  providers: [
+    {
+      provide: APP_PIPE,
+      useFactory() {
+        return new ValidationPipe({
+          whitelist: true,
+          transform: true,
+        });
+      },
+    },
   ],
 })
 export class AppModule {}
